@@ -10,14 +10,54 @@ import 'package:flutter_blue/flutter_blue.dart';
 import 'package:flutter_blue_example/widgets.dart';
 
 void main() {
-  runApp(FlutterBlueApp());
+  //runApp(FlutterBlueApp());
+  runApp(Home());
+}
+
+class Home extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        home: DefaultTabController(
+            length: 3,
+            child: Scaffold(
+              appBar: AppBar(
+                leadingWidth: 100,
+                leading: Container(
+                  child: Row(
+                        children: [
+                          Icon(Icons.bluetooth_disabled),
+                          Text("40001")
+                      ]
+                    ),
+                ),
+                title: Text("Engecomp CoIoTe"),
+                centerTitle: true,
+                bottom: TabBar(
+                  tabs: [
+                    Tab(icon: Icon(Icons.home)),
+                    Tab(icon: Icon(Icons.flash_on)),
+                    Tab(icon: Icon(Icons.bluetooth)),
+                  ],
+                ),
+              ),
+              body: TabBarView(
+                children: [
+                  Icon(Icons.home),
+                  Icon(Icons.directions_transit),
+                  FlutterBlueApp(),
+                ],
+              ),
+              ),
+            ));
+  }
 }
 
 class FlutterBlueApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      color: Colors.lightBlue,
+      //color: Colors.lightBlue,
       home: StreamBuilder<BluetoothState>(
           stream: FlutterBlue.instance.state,
           initialData: BluetoothState.unknown,
@@ -54,7 +94,7 @@ class BluetoothOffScreen extends StatelessWidget {
               'Bluetooth Adapter is ${state != null ? state.toString().substring(15) : 'not available'}.',
               style: Theme.of(context)
                   .primaryTextTheme
-                  .subhead
+                  .subtitle1
                   .copyWith(color: Colors.white),
             ),
           ],
@@ -68,9 +108,9 @@ class FindDevicesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Find Devices'),
-      ),
+      // appBar: AppBar(
+      //   title: Text('Encontrar Remotas'),
+      // ),
       body: RefreshIndicator(
         onRefresh: () =>
             FlutterBlue.instance.startScan(timeout: Duration(seconds: 4)),
@@ -92,7 +132,7 @@ class FindDevicesScreen extends StatelessWidget {
                               builder: (c, snapshot) {
                                 if (snapshot.data ==
                                     BluetoothDeviceState.connected) {
-                                  return RaisedButton(
+                                  return ElevatedButton(
                                     child: Text('OPEN'),
                                     onPressed: () => Navigator.of(context).push(
                                         MaterialPageRoute(
@@ -227,7 +267,7 @@ class DeviceScreen extends StatelessWidget {
                   text = snapshot.data.toString().substring(21).toUpperCase();
                   break;
               }
-              return FlatButton(
+              return TextButton(
                   onPressed: onPressed,
                   child: Text(
                     text,
