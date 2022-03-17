@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_example/dbhelper.dart';
 import 'package:flutter_blue_example/telemetry.dart';
 import 'package:flutter_blue_example/filelist.dart';
-import 'package:flutter_blue_example/widgets.dart';
+import 'package:flutter_blue_example/BLE.dart';
 import 'dart:convert';
 
 void main() {
@@ -56,53 +56,58 @@ class Home extends StatelessWidget {
           crossAxisCount: 3,
           crossAxisSpacing: 20,
           children: [
-            // StatusScreen(),
             Material(child: InkWell(
                 onTap: () {Navigator.push(context,MaterialPageRoute(builder: (context) => FlutterBlueApp()),);},
-                child: Column(children:
+                child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center, children:
                 [
                   Icon(Icons.bluetooth, size: iconSize),
-                  Text('Bluetooth', style: TextStyle(fontSize: textSize) )
+                  Text('Bluetooth', textAlign: TextAlign.center, style: TextStyle(fontSize: textSize) )
+                ])),
+            ),
+            Material(child: InkWell(
+                onTap: () {Navigator.push(context,MaterialPageRoute(builder: (context) => StatusScreen()),);},
+                child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center, children:
+                [
+                  Icon(Icons.perm_device_info, size: iconSize),
+                  Text('Status', textAlign: TextAlign.center, style: TextStyle(fontSize: textSize) )
                 ])),
             ),
             Material(child: InkWell(
                 onTap: () {
                   print('2 was clicked');
                 },
-                child: Column(children:
+                child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center, children:
                 [
                   Icon(Icons.wifi, size: iconSize),
-                  Text('WiFi', style: TextStyle(fontSize: textSize) )
+                  Text('WiFi', textAlign: TextAlign.center, style: TextStyle(fontSize: textSize) )
                 ])),
             ),
             Material(child: InkWell(
                 onTap: () {
                   print('2 was clicked');
                 },
-                child: Column(children:
+                child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center, children:
                 [
                   Icon(Icons.flash_on, size: iconSize),
-                  Text('Saída de Usuário', style: TextStyle(fontSize: textSize) )
+                  Text('Saída de Usuário', textAlign: TextAlign.center, style: TextStyle(fontSize: textSize) )
                 ])),
             ),
             Material(child: InkWell(
                 onTap: () {
                   print('2 was clicked');
                 },
-                child: Column(children:
+                child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center, children:
                 [
                   Icon(Icons.settings_ethernet, size: iconSize),
-                  Text('Ethernet', style: TextStyle(fontSize: textSize) )
+                  Text('Ethernet', textAlign: TextAlign.center, style: TextStyle(fontSize: textSize) )
                 ])),
             ),
             Material(child: InkWell(
-                onTap: () {
-                  print('2 was clicked');
-                },
-                child: Column(children:
+                onTap: () {Navigator.push(context,MaterialPageRoute(builder: (context) => UploadData()),);},
+                child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center, children:
                 [
                   Icon(Icons.cloud_upload_outlined, size: iconSize),
-                  Text('Enviar Dados', style: TextStyle(fontSize: textSize) )
+                  Text('Enviar Dados', textAlign: TextAlign.center, style: TextStyle(fontSize: textSize) )
                 ])),
             ),
             Material(child: InkWell(
@@ -115,33 +120,100 @@ class Home extends StatelessWidget {
                   Text('Extrair Dados da Remota', textAlign: TextAlign.center, style: TextStyle(fontSize: textSize) )
                 ])),
             ),
-            Container(
-                constraints: BoxConstraints(maxWidth: 300, maxHeight: 500),
-                padding: const EdgeInsets.all(10.0),
-                child: Column(children: [
-              ElevatedButton.icon(
-                icon: const Icon(Icons.refresh, size: 18),
-                label: Text('Atualizar'),
-                onPressed: () {},
-              ),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.refresh, size: 18),
-                label: Text('criar'),
-                onPressed: () {
-                  return _putData();
+            Material(child: InkWell(
+                onTap: () {
+                  print('2 was clicked');
                 },
-              ),
-              Container(
-                  constraints: BoxConstraints(maxWidth: 300, maxHeight: 500),
-                  child: MyEmployeeList())
-            ])),
-            // MyApp(),
+                child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center, children:
+                [
+                  Icon(Icons.swap_horizontal_circle_outlined, size: iconSize),
+                  Text('Modbus', textAlign: TextAlign.center, style: TextStyle(fontSize: textSize) )
+                ])),
+            )
+
           ],
         ),
       );
   }
 }
 
+// class UploadData extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//         children: [
+//           Align(
+//             alignment: Alignment.topCenter,
+//             child: Text('Enviar dados para nuvem'),
+//           )
+//         ]
+//             title: Text('Enviar dados para nuvem'),
+//             centerTitle: true,
+//             backgroundColor: Colors.white,
+//             leading: InkWell(
+//                 onTap: () {
+//                   Navigator.pop(context);
+//                 },
+//                 child: Icon(Icons.arrow_back))
+//         ),
+//         body: Container(
+//             constraints: BoxConstraints(maxWidth: 300, maxHeight: 500),
+//             padding: const EdgeInsets.all(10.0),
+//             child: Column(children: [
+//               ElevatedButton.icon(
+//                 icon: const Icon(Icons.refresh, size: 18),
+//                 label: Text('Atualizar'),
+//                 onPressed: () {},
+//               ),
+//               ElevatedButton.icon(
+//                 icon: const Icon(Icons.refresh, size: 18),
+//                 label: Text('criar'),
+//                 onPressed: () {
+//                   return _putData();
+//                 },
+//               ),
+//               Container(
+//                   constraints: BoxConstraints(maxWidth: 300, maxHeight: 500),
+//                   child: MyEmployeeList())
+//             ])));
+//   }
+// }
+
+class UploadData extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+            title: Text('Enviar dados para nuvem'),
+            centerTitle: true,
+            backgroundColor: Colors.white,
+            leading: InkWell(
+                onTap: () {Navigator.pop(context);},
+                child: Icon(Icons.arrow_back))
+        ),
+        body: Container(
+        constraints: BoxConstraints(maxWidth: 300, maxHeight: 500),
+        padding: const EdgeInsets.all(10.0),
+        child: Column(children: [
+          ElevatedButton.icon(
+            icon: const Icon(Icons.refresh, size: 18),
+            label: Text('Atualizar'),
+            onPressed: () {},
+          ),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.refresh, size: 18),
+            label: Text('criar'),
+            onPressed: () {
+              return _putData();
+            },
+          ),
+          Container(
+              constraints: BoxConstraints(maxWidth: 300, maxHeight: 500),
+              child: MyEmployeeList())
+        ])));
+  }
+
+}
 
 // class Home extends StatelessWidget {
 //   @override
