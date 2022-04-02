@@ -4,10 +4,11 @@
 
 import 'dart:async';
 import 'dart:convert';
-//import 'dart:io';
+// import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:intl/intl.dart';
 
 
 BluetoothCharacteristic writeC;
@@ -375,18 +376,28 @@ connect(BluetoothDevice device) async {
 setupDevice(BluetoothDeviceState state, BluetoothDevice device) async {
   List<BluetoothDevice> devices = await FlutterBlue.instance.connectedDevices;
   var x = state;
-  if (devices.length > 0) {
-    devices[0].requestMtu(256);
+  print(x);
+  if (state == BluetoothDeviceState.connected) {
+    await devices[0].requestMtu(131);
+    await new Future.delayed(const Duration(milliseconds : 1000));
+    print("will read services");
     List<BluetoothService> services = await devices[0].discoverServices();
+
+    print("SERVICES:");
+    print(services);
     services.forEach((service) async {
       List<BluetoothCharacteristic> characteristics = service.characteristics;
+      print("printing characteristics...");
+      print(characteristics);
       for (BluetoothCharacteristic c in characteristics) {
+        print(c);
         if (c.properties.notify) {
           notifyC = c;
           await c.setNotifyValue(true);
         }
         if (c.properties.write) {
           writeC = c;
+          await setClock();
         }
       }
     });
@@ -397,8 +408,18 @@ setupDevice(BluetoothDeviceState state, BluetoothDevice device) async {
   }
 }
 
+Future setClock() async {
+  var formatter = new DateFormat('y M d H m s');
+  final DateTime now = DateTime.now().toUtc();
+  var dateStr = formatter.format(now);
+  var weekday = now.weekday == 0 ? 6 : now.weekday -1 ;
+  await sendBleCommand('set time '+dateStr+' '+weekday.toString());
+}
+
+
 Future<Map> sendBleCommand(command) async {
   String buffer = "";
+  String s = "";
   bool good = false;
   bool timeout = false;
   Map payload;
@@ -411,11 +432,16 @@ Future<Map> sendBleCommand(command) async {
     var future = new Future.delayed(const Duration(seconds: 3));
     subscription = future.asStream().listen((value) => timeout = true);
 
+    await new Future.delayed(const Duration(milliseconds : 3000));
+
     listener = notifyC.value.listen((value) {
-      buffer += utf8.decode(value);
+      s = utf8.decode(value);
+      // print("piece: "+ s+'\n');
+      buffer += s;
+      // print(buffer);
       try {
+        //print("dentro da função: " + buffer);
         payload = jsonDecode(buffer);
-        // print("dentro da função: " + buffer);
         listener.cancel();
         good = true;
       } catch (error) {}
@@ -423,7 +449,6 @@ Future<Map> sendBleCommand(command) async {
     await writeC.write(utf8.encode(command));
   }
   while (!good || !timeout) {
-  //   sleep(Duration(milliseconds:300));
     await new Future.delayed(const Duration(milliseconds : 300));
   }
   if (subscription != null) {subscription.cancel();}

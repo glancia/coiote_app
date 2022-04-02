@@ -215,62 +215,6 @@ class UploadData extends StatelessWidget {
 
 }
 
-// class Home extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//         home: DefaultTabController(
-//       length: 4,
-//       child: Scaffold(
-//         appBar: AppBar(
-//           leadingWidth: 100,
-//           leading: Container(
-//             //child: Row(children: [Icon(Icons.bluetooth_disabled), Text("40001")]),
-//             child: Teste(),
-//           ),
-//           title: Text("Engecomp CoIoTe"),
-//           centerTitle: true,
-//           bottom: TabBar(
-//             tabs: [
-//               Tab(icon: Icon(Icons.home)),
-//               Tab(icon: Icon(Icons.flash_on)),
-//               Tab(icon: Icon(Icons.table_rows_rounded)),
-//               Tab(icon: Icon(Icons.bluetooth)),
-//             ],
-//           ),
-//         ),
-//         body: TabBarView(
-//           children: [
-//             StatusScreen(),
-//             Icon(Icons.directions_transit),
-//             Container(
-//                 constraints: BoxConstraints(maxWidth: 300, maxHeight: 500),
-//                 padding: const EdgeInsets.all(10.0),
-//                 child: Column(children: [
-//               ElevatedButton.icon(
-//                 icon: const Icon(Icons.refresh, size: 18),
-//                 label: Text('Atualizar'),
-//                 onPressed: () {},
-//               ),
-//               ElevatedButton.icon(
-//                 icon: const Icon(Icons.refresh, size: 18),
-//                 label: Text('criar'),
-//                 onPressed: () {
-//                   return _putData();
-//                 },
-//               ),
-//               Container(
-//                   constraints: BoxConstraints(maxWidth: 300, maxHeight: 500),
-//                   child: MyEmployeeList())
-//             ])),
-//             // MyApp(),
-//             FlutterBlueApp(),
-//           ],
-//         ),
-//       ),
-//     ));
-//   }
-// }
 
 
 class StatusScreen extends StatefulWidget {
@@ -297,7 +241,7 @@ class _StatusScreenState extends State<StatusScreen> {
 
     eventList = await sendBleCommand('get status');
     String x = jsonEncode(eventList);
-    print("Widget: "+x);
+    // print("Widget: "+x);
 
     setState(() {});
   }

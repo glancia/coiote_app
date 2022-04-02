@@ -7,11 +7,16 @@ environment:
 
 dependencies:
   flutter_blue: ^0.8.0
+  intl: any
   flutter:
     sdk: flutter
   sqflite: any
   path: any
   path_provider: '>=0.3.0'
+#  flutter_blue:
+#    git:
+#      url: https://github.com/boskokg/flutter_blue/
+#      ref: 0.13.0
 
 dev_dependencies:
   flutter_test:
