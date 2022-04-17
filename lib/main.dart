@@ -3,11 +3,19 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_blue_example/dbhelper.dart';
+import 'package:flutter_blue_example/db.dart';
+import 'package:flutter_blue_example/dl_telemetry.dart';
 import 'package:flutter_blue_example/telemetry.dart';
 import 'package:flutter_blue_example/filelist.dart';
 import 'package:flutter_blue_example/BLE.dart';
-import 'dart:convert';
+import 'package:flutter_blue_example/Eth.dart';
+import 'package:flutter_blue_example/wifi.dart';
+import 'package:flutter_blue_example/dl_telemetry.dart';
+// import 'dart:convert';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:inspection/inspection.dart';
+
+
 
 void main() {
 
@@ -73,9 +81,7 @@ class Home extends StatelessWidget {
                 ])),
             ),
             Material(child: InkWell(
-                onTap: () {
-                  print('2 was clicked');
-                },
+                onTap: () {Navigator.push(context,MaterialPageRoute(builder: (context) => WifiScreen()));},
                 child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center, children:
                 [
                   Icon(Icons.wifi, size: iconSize),
@@ -93,9 +99,7 @@ class Home extends StatelessWidget {
                 ])),
             ),
             Material(child: InkWell(
-                onTap: () {
-                  print('2 was clicked');
-                },
+                onTap: () {Navigator.push(context,MaterialPageRoute(builder: (context) => EthScreen()),);},
                 child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center, children:
                 [
                   Icon(Icons.settings_ethernet, size: iconSize),
@@ -111,23 +115,23 @@ class Home extends StatelessWidget {
                 ])),
             ),
             Material(child: InkWell(
-                onTap: () {
-                  print('2 was clicked');
-                },
+                onTap: () {Navigator.push(context,MaterialPageRoute(builder: (context) => DlScreen()),);},
                 child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center, children:
                 [
                   Icon(Icons.download_for_offline, size: iconSize),
                   Text('Extrair Dados da Remota', textAlign: TextAlign.center, style: TextStyle(fontSize: textSize) )
                 ])),
             ),
-            Material(child: InkWell(
-                onTap: () {
-                  print('2 was clicked');
-                },
+            Material(
+              child: InkWell(
+                onTap: null,
+                //     () {
+                //   print('2 was clicked');
+                // },
                 child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center, children:
                 [
-                  Icon(Icons.swap_horizontal_circle_outlined, size: iconSize),
-                  Text('Modbus', textAlign: TextAlign.center, style: TextStyle(fontSize: textSize) )
+                  Icon(Icons.swap_horizontal_circle_outlined, size: iconSize, color: Colors.grey,),
+                  Text('Modbus', textAlign: TextAlign.center, style: TextStyle(fontSize: textSize, color: Colors.grey) )
                 ])),
             )
 
@@ -136,48 +140,6 @@ class Home extends StatelessWidget {
       );
   }
 }
-
-// class UploadData extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//         children: [
-//           Align(
-//             alignment: Alignment.topCenter,
-//             child: Text('Enviar dados para nuvem'),
-//           )
-//         ]
-//             title: Text('Enviar dados para nuvem'),
-//             centerTitle: true,
-//             backgroundColor: Colors.white,
-//             leading: InkWell(
-//                 onTap: () {
-//                   Navigator.pop(context);
-//                 },
-//                 child: Icon(Icons.arrow_back))
-//         ),
-//         body: Container(
-//             constraints: BoxConstraints(maxWidth: 300, maxHeight: 500),
-//             padding: const EdgeInsets.all(10.0),
-//             child: Column(children: [
-//               ElevatedButton.icon(
-//                 icon: const Icon(Icons.refresh, size: 18),
-//                 label: Text('Atualizar'),
-//                 onPressed: () {},
-//               ),
-//               ElevatedButton.icon(
-//                 icon: const Icon(Icons.refresh, size: 18),
-//                 label: Text('criar'),
-//                 onPressed: () {
-//                   return _putData();
-//                 },
-//               ),
-//               Container(
-//                   constraints: BoxConstraints(maxWidth: 300, maxHeight: 500),
-//                   child: MyEmployeeList())
-//             ])));
-//   }
-// }
 
 class UploadData extends StatelessWidget {
   @override
@@ -230,7 +192,6 @@ class _StatusScreenState extends State<StatusScreen> {
   @override
   void initState() {
     super.initState();
-    // sendBleCommand('get status');
     getStatusScreen();
   }
 
@@ -240,8 +201,6 @@ class _StatusScreenState extends State<StatusScreen> {
     setState(() {});
 
     eventList = await sendBleCommand('get status');
-    String x = jsonEncode(eventList);
-    // print("Widget: "+x);
 
     setState(() {});
   }
@@ -266,25 +225,112 @@ class _StatusScreenState extends State<StatusScreen> {
 
   }
 
-
   Widget buildEventList(BuildContext context) {
     return Expanded(
         child: Container(
-          child: (eventList == null || eventList.length == 0)
-              ? Center(child: CircularProgressIndicator()) :
+            padding: const EdgeInsets.all(20),
+            child: (eventList == null || eventList.length == 0)
+                ? Center(child: CircularProgressIndicator())
+                : GridView
+                    .count(crossAxisCount: 1, crossAxisSpacing: 20, childAspectRatio: 2, children: [
+                    Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min,
+                        children: [
+                      Text("Status", textScaleFactor: 1.5, style: TextStyle(fontWeight: FontWeight.bold)),
+                      Row(mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                        Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("NS"),
+                              Text("BIOS"),
+                              Text("Relógio"),
+                              Text("Temp. Interna"),
+                              Text("Uptime"),
+                            ]),
+                        Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(eventList["m"]["system"]["sn"].toString()),
+                              Text(eventList["m"]["system"]["bios_version"]
+                                  .toString()),
+                              Text(eventList["m"]["system"]["time"].toString()),
+                              Text(eventList["m"]["temperature"].toString()),
+                              Text(
+                                  eventList["m"]["system"]["uptime"].toString())
+                            ])
+                      ])
+                    ]),
 
-          Center(child:
-              Column(children: [
-                Text(eventList["m"]["system"]["sn"].toString()),
-                Text(eventList["m"]["system"]["bios_version"].toString()),
-                Text(eventList["m"]["system"]["time"].toString()),
-                Text(eventList["m"]["system"]["uptime"].toString()),
-                Text(eventList["m"]["wlan"]["name"].toString()),
-                Text(eventList["m"]["wlan"]["ip"].toString()),
 
-          ]
-          ))
-        ));
+
+              Column(crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Ethernet", textScaleFactor: 1.5, style: TextStyle(fontWeight: FontWeight.bold)),
+                    Row(mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Nome"),
+                                Text("IP"),
+                                Text("Mask"),
+                                Text("Gateway"),
+                                Text("DNS"),
+                                Text("MAC"),
+                                Text("Sinal"),
+                              ]),
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(eventList["m"]["eth0"]["name"].toString()),
+                                Text(eventList["m"]["eth0"]["ip"].toString()),
+                                Text(eventList["m"]["eth0"]["mask"].toString()),
+                                Text(eventList["m"]["eth0"]["gateway"].toString()),
+                                Text(eventList["m"]["eth0"]["dns"].toString()),
+                                Text(eventList["m"]["eth0"]["mac"].toString()),
+                                Text(eventList["m"]["eth0"]["signal"].toString())
+                              ])
+                        ])
+                  ]),
+
+              Column(crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Wifi", textScaleFactor: 1.5, style: TextStyle(fontWeight: FontWeight.bold)),
+                    Row(mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Nome"),
+                                Text("IP"),
+                                Text("Mask"),
+                                Text("Gateway"),
+                                Text("DNS"),
+                                Text("MAC"),
+                                Text("Sinal"),
+                              ]),
+
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(eventList["m"]["wlan"]["name"].toString()),
+                                Text(eventList["m"]["wlan"]["ip"].toString()),
+                                Text(eventList["m"]["wlan"]["mask"].toString()),
+                                Text(eventList["m"]["wlan"]["gateway"].toString()),
+                                Text(eventList["m"]["wlan"]["dns"].toString()),
+                                Text(eventList["m"]["wlan"]["mac"].toString()),
+                                Text(eventList["m"]["wlan"]["signal"].toString())
+                              ])
+                        ])
+                  ]),
+
+
+                  ])));
   }
-
 }
+
+
+

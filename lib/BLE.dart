@@ -4,12 +4,12 @@
 
 import 'dart:async';
 import 'dart:convert';
+// import 'dart:ffi';
 // import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:intl/intl.dart';
-
 
 BluetoothCharacteristic writeC;
 BluetoothCharacteristic notifyC;
@@ -375,20 +375,15 @@ connect(BluetoothDevice device) async {
 
 setupDevice(BluetoothDeviceState state, BluetoothDevice device) async {
   List<BluetoothDevice> devices = await FlutterBlue.instance.connectedDevices;
-  var x = state;
-  print(x);
+
   if (state == BluetoothDeviceState.connected) {
     await devices[0].requestMtu(131);
     await new Future.delayed(const Duration(milliseconds : 1000));
     print("will read services");
     List<BluetoothService> services = await devices[0].discoverServices();
 
-    print("SERVICES:");
-    print(services);
     services.forEach((service) async {
       List<BluetoothCharacteristic> characteristics = service.characteristics;
-      print("printing characteristics...");
-      print(characteristics);
       for (BluetoothCharacteristic c in characteristics) {
         print(c);
         if (c.properties.notify) {
@@ -436,12 +431,11 @@ Future<Map> sendBleCommand(command) async {
 
     listener = notifyC.value.listen((value) {
       s = utf8.decode(value);
-      // print("piece: "+ s+'\n');
       buffer += s;
-      // print(buffer);
       try {
         //print("dentro da função: " + buffer);
         payload = jsonDecode(buffer);
+        print(buffer);
         listener.cancel();
         good = true;
       } catch (error) {}

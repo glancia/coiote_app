@@ -3,10 +3,12 @@ description: Demonstrates how to use the flutter_blue plugin.
 publish_to: "none"
 
 environment:
-  sdk: ">=2.2.2 <3.0.0"
+  sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
   flutter_blue: ^0.8.0
+  mask_text_input_formatter: ^2.3.0
+  inspection: ^0.0.11
   intl: any
   flutter:
     sdk: flutter

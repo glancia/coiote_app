@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_example/telemetry.dart';
 import 'dart:async';
-import 'package:flutter_blue_example/dbhelper.dart';
+import 'package:flutter_blue_example/db.dart';
 
 Future<List<Telemetry>> fetchEmployeesFromDatabase() async {
   var dbHelper = DBHelper();
