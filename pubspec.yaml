@@ -1,5 +1,5 @@
-name: flutter_blue_example
-description: Demonstrates how to use the flutter_blue plugin.
+name: coiote_app
+description: Operates Engecomp Coiote board.
 publish_to: "none"
 
 environment:
@@ -13,6 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   sqflite: any
+  http: '>=0.13.4'
   path: any
   path_provider: '>=0.3.0'
 #  flutter_blue:

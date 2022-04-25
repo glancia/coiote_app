@@ -4,37 +4,22 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_example/db.dart';
-import 'package:flutter_blue_example/dl_telemetry.dart';
 import 'package:flutter_blue_example/telemetry.dart';
 import 'package:flutter_blue_example/filelist.dart';
 import 'package:flutter_blue_example/BLE.dart';
 import 'package:flutter_blue_example/Eth.dart';
 import 'package:flutter_blue_example/wifi.dart';
 import 'package:flutter_blue_example/dl_telemetry.dart';
+import 'package:flutter_blue_example/ul_telemetry.dart';
 // import 'dart:convert';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:inspection/inspection.dart';
 
-
-
 void main() {
-
   runApp(CoioteApp());
 }
 
 
-void _putData() {
-  int id;
-  int serial = 40010;
-  String filename = "40010_2201051515.t";
-  int dataPoints = 5;
-  String payload = "2201051515;5;5;1;1;1;1";
-  DateTime downloadDate = DateTime.now();
-  DateTime uploadDate = DateTime.now();
-  var dbHelper = DBHelper();
-  var telemetry = Telemetry(id, serial, filename, dataPoints, payload, downloadDate, uploadDate);
-  dbHelper.saveTelemetry(telemetry);
-}
 
 class CoioteApp extends StatelessWidget {
   @override
@@ -107,7 +92,7 @@ class Home extends StatelessWidget {
                 ])),
             ),
             Material(child: InkWell(
-                onTap: () {Navigator.push(context,MaterialPageRoute(builder: (context) => UploadData()),);},
+                onTap: () {Navigator.push(context,MaterialPageRoute(builder: (context) => UlScreen()),);},
                 child: Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.center, children:
                 [
                   Icon(Icons.cloud_upload_outlined, size: iconSize),
@@ -140,43 +125,6 @@ class Home extends StatelessWidget {
       );
   }
 }
-
-class UploadData extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-            title: Text('Enviar dados para nuvem'),
-            centerTitle: true,
-            backgroundColor: Colors.white,
-            leading: InkWell(
-                onTap: () {Navigator.pop(context);},
-                child: Icon(Icons.arrow_back))
-        ),
-        body: Container(
-        constraints: BoxConstraints(maxWidth: 300, maxHeight: 500),
-        padding: const EdgeInsets.all(10.0),
-        child: Column(children: [
-          ElevatedButton.icon(
-            icon: const Icon(Icons.refresh, size: 18),
-            label: Text('Atualizar'),
-            onPressed: () {},
-          ),
-          ElevatedButton.icon(
-            icon: const Icon(Icons.refresh, size: 18),
-            label: Text('criar'),
-            onPressed: () {
-              return _putData();
-            },
-          ),
-          Container(
-              constraints: BoxConstraints(maxWidth: 300, maxHeight: 500),
-              child: MyEmployeeList())
-        ])));
-  }
-
-}
-
 
 
 class StatusScreen extends StatefulWidget {

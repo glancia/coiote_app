@@ -9,6 +9,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:flutter_blue_example/debug.dart';
 import 'package:intl/intl.dart';
 
 BluetoothCharacteristic writeC;
@@ -420,6 +421,10 @@ Future<Map> sendBleCommand(command) async {
   Map payload;
   var listener;
   StreamSubscription subscription;
+
+  if (DEBUG) {
+    return await debug(command);
+  }
 
   if (writeC != null) {
     print("sending command "+command);

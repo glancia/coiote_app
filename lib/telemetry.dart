@@ -1,17 +1,3 @@
-class Employee {
-  String firstName;
-  String lastName;
-  String mobileNo;
-  String emailId;
-
-  Employee(this.firstName, this.lastName, this.mobileNo, this.emailId);
-  Employee.fromMap(Map map) {
-    firstName = map[firstName];
-    lastName = map[lastName];
-    mobileNo = map[mobileNo];
-    emailId = map[emailId];
-  }
-}
 
 
 class Telemetry {
@@ -42,6 +28,15 @@ class Telemetry {
         downloadDate = res["downloadDate"],
         uploadDate = res["uploadDate"];
 
+  Telemetry.fromMapCat(Map<String, dynamic> res, int serial)
+      : id = null,
+        serial = serial,
+        filename = res["m"]["file"],
+        dataPoints = 0,
+        payload = res["m"]["payload"],
+        downloadDate = DateTime.now(),
+        uploadDate = null;
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -53,5 +48,29 @@ class Telemetry {
       'uploadDate': uploadDate
     };
   }
+}
 
+class TelemetrySummary {
+  final int serial;
+  final int files;
+  final int dataPoints;
+
+  TelemetrySummary(
+      this.serial,
+      this.files,
+      this.dataPoints,
+      );
+
+  TelemetrySummary.fromMap(Map<String, dynamic> res)
+      : serial = res["serial"],
+        files = res["files"],
+        dataPoints = res["dataPoints"];
+
+  Map<String, dynamic> toMap() {
+    return {
+      'serial': serial,
+      'files': files,
+      'dataPoints': dataPoints
+    };
+  }
 }

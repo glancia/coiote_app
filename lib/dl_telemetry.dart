@@ -2,22 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_example/BLE.dart';
 import 'package:flutter_blue_example/formatters.dart';
 import 'package:flutter_blue_example/main.dart';
+import 'package:flutter_blue_example/db.dart';
+import 'package:flutter_blue_example/telemetry.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:inspection/inspection.dart';
-import 'dart:math';
-
-aleat() {
-  var rng = Random();
-  return rng.nextInt(100);
-}
 
 Future<Map> _getData() async {
-  // return await sendBleCommand('list telemetry');
-  return await new Future<Map>.delayed(
-    const Duration(seconds: 2),
-        () =>        {"m":{"files":[{"t":1650202200,"d":0,"s":577,"n":"/sd/db/20220417133000_1.json"},{"t":1650202201,"d":0,"s":573,"n":"/sd/db/20220417133001_2.json"}],"count":10,"total":10},"t":"ls"},
-  );
-
+  return await sendBleCommand('list telemetry');
 }
 
 class DlScreen extends StatefulWidget {
@@ -31,29 +22,55 @@ class _DlScreenState extends State<DlScreen> {
 
   Future<Map> _calculation = _getData();
   bool dirty = false;
-  bool _passwordVisible = false;
   bool _downloading = false;
-  double progress = 0;
+  double _progress = 0;
+  List<Map> files = [];
+  Map telemetry = {};
+  int totalFiles = 0;
+
+  void _putData(Map data, int serial) {
+    Telemetry telemetry = Telemetry.fromMapCat(data, serial);
+    var dbHelper = DBHelper();
+    dbHelper.saveTelemetry(telemetry);
+  }
 
   void download(snapshot) async {
-    int totalFiles = snapshot.data["m"]["total"];
     int pageFiles = snapshot.data["m"]["count"];
     int initialTotalFiles = totalFiles;
     int downloadedFiles = 0;
+    int serial;
+    Map newQuery;
+
+    _progress = 0;
+
     setState(() {
       _downloading = true;
     });
-    for (var i = pageFiles; i > 0; i--) {
-      await new Future.delayed(const Duration(milliseconds : 1000));
-      totalFiles--;
-      downloadedFiles++;
-      setState(() {
-        progress = downloadedFiles/initialTotalFiles;
-        snapshot.data["m"]["total"] = totalFiles;
-      });
+    files = snapshot.data["m"]["files"];
+    while (totalFiles > 0) {
+      for(var file in files ) {
+        telemetry = await sendBleCommand('cat ${file["n"]}');
+        if (telemetry["m"]["error"] == "") {
+          serial = int.parse(telemetry["m"]["sn"]);
+          _putData(telemetry, serial);
+        }
+
+        dirty = true;
+        totalFiles--;
+        print("Total files: $totalFiles");
+        downloadedFiles++;
+        setState(() {
+          _progress = downloadedFiles / initialTotalFiles;
+        });
+      }
+      if (totalFiles > 0) {
+        newQuery = await sendBleCommand('list telemetry');
+        totalFiles = newQuery["m"]["count"];
+        files = newQuery["m"]["files"];
+      }
     }
     setState(() {
-      _downloading = true;
+      _downloading = false;
     });
   }
 
@@ -92,16 +109,21 @@ class _DlScreenState extends State<DlScreen> {
         spacing: 20, // to apply margin in the main axis of the wrap
         runSpacing: 20,
         children: [
-          Text("Total: ${snapshot.data["m"]["total"]} arquivos"),
+          Text("Total: $totalFiles arquivos"),
           Offstage(
             offstage: !_downloading,
-            child: LinearProgressIndicator(
-              value: progress,
+            child: Column(
+            children: [
+              Text("Aguarde..."),
+              LinearProgressIndicator(
+              value: _progress,
+            ),
+            ]
             ),
           ),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             ElevatedButton(
-              onPressed: (snapshot.data["m"]["total"] <= 0)  ? null :
+              onPressed: (totalFiles <= 0 || _downloading)  ? null :
                   () { download(snapshot); },
               child: Text('Baixar'),
             )
@@ -115,6 +137,7 @@ class _DlScreenState extends State<DlScreen> {
       builder: (BuildContext context, AsyncSnapshot<Map> snapshot) {
         List<Widget> children;
         if (snapshot.hasData) {
+          totalFiles = dirty ? totalFiles : snapshot.data["m"]["total"];
           children = <Widget>[
             dlMain(snapshot)
           ];

@@ -12,6 +12,7 @@ class EthScreen extends StatefulWidget {
 class _EthScreenState extends State<EthScreen> {
   Map eventList = {};
   bool dirty = false;
+  bool enabled = false;
   int dhcp = -1;
   String ip = "";
   String mask = "";
@@ -25,135 +26,10 @@ class _EthScreenState extends State<EthScreen> {
   }
 
   Future<Null> getEthScreen() async {
-
-    eventList = {
-      "m":
-      {
-        "token": "",
-        "gpio":
-        {
-          "led":
-          {
-            "pin": 0,
-            "on_state": 0
-          },
-          "eth":
-          {
-            "phy_type": "LAN8720",
-            "reset": 0,
-            "mdc": 8,
-            "mdio": 7,
-            "phy_address": 0
-          }
-        },
-        "serial_ports":
-        {
-          "port2":
-          {
-            "name": "/dev/ttyUSB2",
-            "databits": 8,
-            "parity": "N",
-            "stopbits": 1,
-            "pins":
-            {
-              "reset": 0,
-              "rx": 35,
-              "cts": 0,
-              "power": 0,
-              "rts": 0,
-              "tx": 20
-            },
-            "baudrate": 115200
-          },
-          "port0":
-          {
-            "name": "/dev/ttyUSB0",
-            "databits": 8,
-            "parity": "N",
-            "stopbits": 1,
-            "pins":
-            {
-              "reset": 0,
-              "rx": 0,
-              "cts": 0,
-              "power": 0,
-              "rts": 0,
-              "tx": 0
-            },
-            "baudrate": 115200
-          },
-          "port1":
-          {
-            "name": "/dev/ttyUSB1",
-            "databits": 8,
-            "parity": "N",
-            "stopbits": 1,
-            "pins":
-            {
-              "reset": 0,
-              "rx": 5,
-              "cts": 0,
-              "power": 0,
-              "rts": 0,
-              "tx": 2
-            },
-            "baudrate": 115200
-          }
-        },
-        "networks":
-        {
-          "wifi":
-          {
-            "mode": "sta",
-            "pwd": "tigertid",
-            "enabled": true,
-            "ssid": "BGML",
-            "rt":
-            {
-              "mac": "",
-              "ip": "",
-              "mask": "",
-              "gateway": "",
-              "dns": ""
-            }
-          },
-          "eth0":
-          {
-            "rt":
-            {
-              "mac": "",
-              "ip": "192.168.9.0",
-              "mask": "255.255.255.0",
-              "gateway": "192.168.0.1",
-              "dns": "8.8.8.8"
-            },
-            "enabled": false,
-            "mode": "dhcp"
-          },
-          "ppp":
-          {
-            "apn": "",
-            "rt":
-            {
-              "mac": "",
-              "ip": "",
-              "mask": "",
-              "gateway": "",
-              "dns": ""
-            },
-            "enabled": true,
-            "usr": "",
-            "operator": "",
-            "pin": "",
-            "verbose": true
-          }
-        },
-        "applications":
-        {}
-      }
-    };
+    eventList = await sendBleCommand('get config');
 
     dhcp = eventList["m"]["networks"]["eth0"]["mode"] == "dhcp" ? 1 : 0;
+    enabled = eventList["m"]["networks"]["eth0"]["enabled"];
     eventList = await sendBleCommand('get config');
     setState(() {});
 
@@ -198,13 +74,13 @@ class _EthScreenState extends State<EthScreen> {
                             Text("Ethernet", textScaleFactor: 1.5,
                                 style: TextStyle(fontWeight: FontWeight.bold)),
                             Switch(
-                              value: eventList["m"]["networks"]["eth0"]["enabled"],
+                              value: enabled,
                               onChanged: (value) {
                                 setState(() {
-                                  eventList["m"]["networks"]["eth0"]["enabled"] =
-                                      value;
+                                  enabled = value;
                                   dirty = true;
                                 });
+                                sendBleCommand("eth ${value ? 'on' : 'off'}");
                               },
                               activeTrackColor: Colors.lightGreenAccent,
                               activeColor: Colors.green,
@@ -258,7 +134,8 @@ class _EthScreenState extends State<EthScreen> {
                                     dirty = true;
                                   },
                                 ),
-                                TextField(
+                                TextFormField(
+                                  initialValue: eventList["m"]["networks"]["eth0"]["rt"]["mask"],
                                   inputFormatters: [ipFormatter],
                                   decoration: InputDecoration(
                                     labelText: "Mask",
@@ -303,9 +180,9 @@ class _EthScreenState extends State<EthScreen> {
                             onPressed: dirty ?
                                 () {
                               if (dhcp == 1) {
-                                print("eth dhcp");
+                                sendBleCommand("eth dhcp");
                               } else {
-                                print("eth static $ip $mask $gateway $dns");
+                                sendBleCommand("eth static $ip $mask $gateway $dns");
                               }
                             }
                                 : null,
